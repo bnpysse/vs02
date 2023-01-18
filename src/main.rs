@@ -109,7 +109,36 @@ fn main() {
     // Slice 类似于 Python 的切片,但是有很大区别:
     //       从未有过任何数据的副本,这些 切片 都是 借用(borrow) 他们自己的数据
     
+    // 切片就像数组一样,可以 索引
+    // Rust在编译时知道数组的大小,但只有在运行时才知道切片的大小
+    // 所以 s[i] 在运行时会引起 超出界限错误 和 恐慌(panic)
+    // 用以处理这种情况的是一种方法 get
+    let ints = [1, 2, 3, 4, 5];
+    let slice = &ints;
+    let first = slice.get(0);
+    let last = slice.get(5);
+    println!("first: {:?}", first);
+    println!("last: {:?}", last);
+    // 上面的情况返回的 First: Some(1) 和 last: None
+    // last返回一个叫 None的东西,
+    println!("first.is_some: {}, first.is_none: {}", first.is_some(), first.is_none());
+    println!("last.is_some: {}, last.is_none: {}", last.is_some(), last.is_none());
+    println!("first value: {}", first.unwrap());
 
+
+}
+pub fn linear_search<T>(arr: &[T], target: &T) -> Option<usize> 
+    where T:PartialEq {
+    for (index, item) in arr.iter().enumerate() {
+        if item == target {
+            return Some(index);
+        }
+    }
+    None
+}
+pub fn linear_search_inline<T>(arr: &[T], obj: &T) -> Option<usize>
+    where T: PartialEq {
+    arr.iter().position(|x| x == obj)
 }
 
 pub fn adder(x : i32, y : i32) -> i32 {
