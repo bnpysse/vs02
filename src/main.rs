@@ -125,7 +125,30 @@ fn main() {
     println!("last.is_some: {}, last.is_none: {}", last.is_some(), last.is_none());
     println!("first value: {}", first.unwrap());
 
+    //---------- 向量 ---------- 
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+    let first = v[0];
+    let maybe_first = v.get(0);
+    println!("v is {:?}", v);
+    println!("first is {:?}", first);
+    println!("maybe_first is {:?}", maybe_first);
 
+    dump(&v);
+    let slice = &v[1..];
+    println!("slice of v is {:!}", slice);
+    // 借用符号 & 是为了迫使向量进入切片
+    // 在系统语言中，程序存储器有两种：堆和栈。在栈上分配数据非常简单，
+    // 但栈是有限的，通常以MB为单位
+    // 堆可以是GB，不在同一个数量级上面，但分配成本较高。而且还有一个特点：
+    // 就是这样的内存必须在 使用之后释放。
+    // 在所谓的管理语言（比如java，Go和所谓的脚本语言）将这些细节都隐藏在 垃圾收集器 中
+}
+
+fn dump(arr: &[i32]) {
+    println!("arr is {:?}", arr);
 }
 pub fn linear_search<T>(arr: &[T], target: &T) -> Option<usize> 
     where T:PartialEq {
