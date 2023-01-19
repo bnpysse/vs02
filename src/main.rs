@@ -196,6 +196,40 @@ fn main() {
     let sum: i64 = [10, 20, 30].iter().sum();
     println!("Through arr.iter().sum() is : {}", sum);
 
+    // 切片的一个 windows 方法,windows可以看成是一个 滑动 的 窗口,而 chunks 却是首尾相连
+    let ints = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let slice = &ints;
+    for s in slice.windows(6) {
+        println!("slice.windows() is {:?}", s);
+    }
+    // 块(chunks)
+    for s in slice.chunks(3) {
+        println!("slice.chunks() is {:?}", s);
+    }
+    // 有用的宏 vec! 用于初始化变量,另外可以使用  pop 去除(remove)向量尾值 
+    // 扩展(extend)一个兼容的迭代器的向量
+    let mut v1 = vec![10, 20, 30, 40];
+    v1.pop();
+
+    let mut v2 = Vec::new();
+    v2.push(10);
+    v2.push(20);
+    v2.push(30);
+
+    assert_eq!(v1, v2);
+
+    v2.extend(0..2);
+    assert_eq!(v2, &[10, 20, 30, 0, 1]);
+
+    // 验证向量,它们之间的每个对应值都相互比较,切片为值.可以将值插入到向量中的任意位置
+    // {insert} 或者 {remove} ,但仍保留其旧容量,所以用 push 等来填充,只会当尺寸大于
+    // 该容量时,才会重新分配容量.
+    // vec 可以排序,然后可以删除重复 dedup 的值 .如果想复制,可使用 clone
+    let mut v1 = vec![1, 10, 5, 1, 2, 11, 2, 40];
+    v1.sort();
+    v1.dedup();
+    assert_eq!(v1, &[1, 2, 5, 10, 11, 40]);
+
 
 }
 
