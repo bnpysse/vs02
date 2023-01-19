@@ -140,15 +140,67 @@ fn main() {
     v.push(10);
     v.push(20);
     v.push(30);
-
     let first = v[0];
     let maybe_first = v.get(0);
-
     println!("v is {:?}", v);
     println!("first is {:?}", first);
-    println!("maybe_first is {:?}, type is {}", maybe_first, type(maybe_first));
+    println!("maybe_first is {:?}", maybe_first);
+
+    dump(&v);
+    let slice = &v[1..];
+    println!("slice of v is {:?}", slice);
+    // 借用符号 & 是为了迫使向量进入切片
+    // 在系统语言中，程序存储器有两种：堆和栈。在栈上分配数据非常简单，
+    // 但栈是有限的，通常以MB为单位
+    // 堆可以是GB，不在同一个数量级上面，但分配成本较高。而且还有一个特点：
+    // 就是这样的内存必须在 使用之后释放。
+    // 在所谓的管理语言（比如java，Go和所谓的脚本语言）将这些细节都隐藏在 垃圾收集器 中
+
+    // Panic 就是 内存安全 ，它们在任何非法访问内存之前发生。这是一个C中常见的安全问题
+    // 因为所有的内存访问都是 不安全 的。
+    
+    // 当一个Vectors被修改或创建时，它由堆分配内存，并变成该内存的拥有者。
+    // 切片从vectors的内存中借用(borrow)。当vectors死亡或者drops时，切片
+    // 也会跟随vectors的动作。
+
+    // ---------- 迭代器 ----------     
+    println!("\n---------- 迭代器 ----------");
+    let mut iter = 0..3;
+    assert_eq!(iter.next(), Some(0));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(2));
+    assert_eq!(iter.next(), None);
+
+    // 这是对数组的第一次迭代
+    // 据 Gentle Intro Rust 讲,这里会出错
+    //  = note: `[{integer}; 3]` is not an iterator; maybe try calling `.iter()` or a similar method
+    //  = note: required by `std::iter::IntoIterator::into_iter` 
+    // 但实际情况却是通过了编译 2023年1月19日22时59分8秒
+    let arr = [10, 20, 30];
+    for i in arr {
+        println!("The arr is {}", i);
+    }
+    // 正常的操作
+    let arr = [10, 20, 30];
+    for i in arr.iter() {
+        println!("Through arr.iter() is : {}", i);
+    }
+    // 切片隐式转换为迭代器
+    let slice = &arr;
+    for i in slice {
+        println!("Through slice=&arr is : {}", i);
+    }
+    // 一系列整数求和的例子,涉及一个 mut变量 和 循环,以下是惯用的方式
+    let sum: i32 = (0..5).sum();
+    println!("Sum is {}", sum);
+    let sum: i64 = [10, 20, 30].iter().sum();
+    println!("Through arr.iter().sum() is : {}", sum);
 
 
+}
+
+fn dump(arr: &[i32]) {
+    println!("arr is {:?}", arr);
 }
 pub fn linear_search<T>(arr: &[T], target: &T) -> Option<usize> 
     where T:PartialEq {
