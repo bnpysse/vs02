@@ -125,6 +125,29 @@ fn main() {
     println!("last.is_some: {}, last.is_none: {}", last.is_some(), last.is_none());
     println!("first value: {}", first.unwrap());
 
+    //打开 {unwrap}last ,会得到一个panic,但至少可以调用 is_some ,如果默认你有一个没有值的变量的话
+    let maybe_last = slice.get(5);
+    let last = if maybe_last.is_some() {
+        *maybe_last.unwrap()
+    }else {
+        -1
+    };
+    // 上面的表述比较繁琐,可以用 unwrap_or ,
+    // let last = *slice.get(5).unwarp_or(&-1);
+
+    // ---------- 向量 ----------     
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+
+    let first = v[0];
+    let maybe_first = v.get(0);
+
+    println!("v is {:?}", v);
+    println!("first is {:?}", first);
+    println!("maybe_first is {:?}, type is {}", maybe_first, type(maybe_first));
+
 
 }
 pub fn linear_search<T>(arr: &[T], target: &T) -> Option<usize> 
