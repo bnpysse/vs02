@@ -313,6 +313,92 @@ fn main() {
     println!("Look the result of filter().collect() is : {}", stripped);
     // filer 方法接受一个 闭包 函数,这是 Rust 当中的 lambdas 函数
     // 这样可以搞定 chars 的显式循环,将返回的字符切片推送到一个可变的向量中
+
+    // ---------- 获取命令行参数 ----------     
+    println!("\n---------- 获取命令行参数 ----------");
+    // std::env::args 访问命令行参数 返回一个迭代器作为字符串的参数,包括程序名
+    // 2023年1月20日20时52分2秒
+    for arg in std::env::args() {
+        println!("{}", arg);
+    }
+    
+    // 返回一个 Vec ,使用 collect 制作迭代器,使用该向量的 skip 方法跳过程序名
+    println!("\n使用 Vec 来解决命令行参数");
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.len() > 0 {
+        for arg in args.iter() {
+            println!("{}", arg);
+        }
+    }
+
+    // 读取单个参数,比如说传递一个整数值 
+    // let first = env::args().nth(1).expect("请输入一个参数.");
+    // let n: i32 = first.parse().expect("非整形参数!!");
+    
+    //---------- 匹配 ----------
+    println!("\n---------- 匹配 ----------");
+    // 这里用到一个 俄语 的字符串
+    let multilingual = "Hi! ¡Hola! привет!";
+    // match 包括几个模式 patterns ,用一个匹配值+=>,然后用 , 分隔
+    // 必须指定所有的可能性,所以必须处理 None
+    match multilingual.find('п') {
+        Some(idx) => {
+            let hi = &multilingual[idx..];
+            println!("Russian hi {}", hi);
+        },
+        None => println!("Couldn't find the greeting,"),
+    };
+    // 如果只想做一次匹配,具 只 对一个可能的结果感兴趣,那么使用 if let 会是一个较好的方法
+    if let Some(idx) = multilingual.find('п') {
+        println!("Russion hi {}", &multilingual[idx..]);
+    }
+
+    // ---------- 读取文件 ----------
+    println!("\n---------- 读取文件 ----------");
+    // expert 就像 unwrap 一样,但可自定义一个错误信息
+    use std::env;
+    use std::fs::File;
+    use std::io::Read;
+    let first = env::args().nth(1).expect("Please supply a filename");
+    let mut file = File::open(&first).expect("Can't open the file");
+    let mut text = String::new();
+    file.read_to_string(&mut text).expect("Can't read the file");
+    println!("File had {} byes.", text.len());
+
+    println!("{:?}", good_or_bad(true));
+    println!("{:?}", good_or_bad(false));
+    match good_or_bad(true) {
+        Ok(n) => println!("Cool, I got {}", n),
+        Err(e) => println!("Huh, I just got {}", e),
+    }
+   
+    let file = env::args().nth(1).expect("please supply a filename");
+    let text = read_to_string(&file).expect("bad file man!");
+    println!("file had {} bytes.", text.len());
+}
+
+fn read_to_string(filename: &str) -> Result<String,io::Error> {
+    use std::io::Read;
+    
+    let mut file = match File::open(filename) {
+        Ok(f) => f,
+        Err(e) => return Err(e),
+    };
+    let mut text = String::new();
+    match file.read_to_string(&mut text) {
+        Ok(_) => Ok(text),
+        Err(e) => Err(e),
+    }
+}
+
+fn good_or_bad(good: bool) -> Result<i32, String> {
+    // Result 是由 二种类型参数 定义的,分别是 Ok 和 Err
+    // Result 盒子有两个隔间,一个标签是 Ok , 一个标签是 Err
+    if good {
+        Ok(42)
+    } else {
+        Err("bad".to_string())
+    }
 }
 fn array_to_str(arr: &[i32]) -> String {
     let mut res = '['.to_string();
