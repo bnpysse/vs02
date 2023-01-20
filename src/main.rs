@@ -238,7 +238,98 @@ fn main() {
     // 所以说, "hello" 不是 String 类型,它是 &str 类型
     // 就像 C++ 中的 const char* 与 std::string 之间的区别
     // 事实上, &str 和 String 有一个很好的相似关系,即 &[T] 到 Vec<T>
+    let text = "Hellow dolly";
+    let s = text.to_string();
+    dump_string(text);
+    dump_string(&s);
+    // 借用符号 & ,可以迫使 String 成为 &str ,就像 Vec<T> 能被迫使成 &[T] 一样.
+    // 实际上, String 基本是一个 Vect<u8> , &str 是一个 &[u8], 那些 字节 必须 表示有效的 UTF-8 文本.
+    // 那么像 Vec 一样, 对于 String 可以同样使用 push 一个字符, 以及 pop 出 String 的结尾.
+
+    let mut s = String::new();
+    s.push('H');
+    s.push_str("ello");
+    s.push(' ');
+    s += "World!";
+
+    s.pop();
+    assert_eq!(s, "Hello World");
     
+    // to_string可以将许多类型转换为字符串
+    let arr = array_to_str(&[10, 20, 30]);
+    let res = format!("hello {}", arr);
+    // 这个地方还得注意呢, format! 形成的格式化串,数组元素之间是不带空格的,如果在下面的语句中,进行比较,需要注意
+    assert_eq!(res, "hello [10,20,30]");
+    
+    // 用于切片的 .. 也可以与字符串一起工作
+    let text = "staic";
+    let string = "dynamic".to_string();
+
+    let text_s = &text[1..];
+    let string_s = &string[2..4];
+
+    println!("Though slices is {:?} {:?}", text_s, string_s);
+    // 但在这种情况下,是不能索引字符串的!因为其使用的是唯一真正编码 UTF-8 ,其中的"character"有可能是一个字节数
+    // let multilingual = "Hi! ¡Hola! привет!";
+    let multilingual = "世界,你好！";
+    for ch in multilingual.chars() {
+        print!("'{}' ", ch);
+    }
+    println!("");
+    println!("len {}", multilingual.len());
+    println!("count {}", multilingual.chars().count());
+
+    let maybe = multilingual.find('п');
+    if maybe.is_some() {
+        let hi = &multilingual[maybe.unwrap()..];
+        println!("Russian hi {}", hi);
+    }
+    println!("{:?}", multilingual.chars());
+    // Rust 的 char 类型是一个 4 字节的 Unicode 代码点,所以字符串不是 字符 的数组!!!!!!!!
+    // 那对于 Unicode 字符串,我如何访问呢?
+    println!("{}", &multilingual[0..3]);
+    println!("{}", &multilingual[3..6]);
+    // 这个地方是一个半角的逗号,就是一个字符
+    println!("{}", &multilingual[6..7]);
+    println!("{}", &multilingual[7..10]);
+    println!("{}", &multilingual[10..13]);
+    println!("{}", &multilingual[13..16]);
+    // 对于 Unicode 还直是挺麻烦呢.我相信可以找到一个通用的方法
+
+    // 拆解字符串
+    // split_whitespace 方法返回 一个迭代器 ,然后选择如何处理它,一个主要的做法即是需要 创建拆分子串 的 Vec
+    let text = "the red fox adn the lazy dog";
+    let words: Vec<&str> = text.split_whitespace().collect();
+    println!("the words is : {:?}", words);
+    // 或者也可以这样,传递迭代器到 扩展(extend) 方法
+    let mut words = Vec::new();
+    words.extend(text.split_whitespace());
+    println!("Though words.extend() to see the words is : {:?}", words);
+
+    // Vec 中的每个片段,都是从原始字符串中借用的,我们所分配的是持有切片的位置
+    // 使用可爱的双线 || 
+    let stripped: String = text.chars()
+        .filter(|ch| ! ch.is_whitespace()).collect();
+    println!("Look the result of filter().collect() is : {}", stripped);
+    // filer 方法接受一个 闭包 函数,这是 Rust 当中的 lambdas 函数
+    // 这样可以搞定 chars 的显式循环,将返回的字符切片推送到一个可变的向量中
+}
+fn array_to_str(arr: &[i32]) -> String {
+    let mut res = '['.to_string();
+    for v in arr {
+        // & 在 v.to_string() 表示一个字符串切片,不是 String 自身
+        // v 本身是 &i32 类型,通过 to_string() 转换为 String, 再通过 & 符号转变为 &str, 让 res 的 += 语法糖
+        // (亦即 add_assign 方法)操作可以成功.
+        res += &v.to_string();
+        res.push(',');
+    }
+    // 这里应该是 pop 出一个逗号, 是上面的语句中添加上的
+    res.pop();
+    res.push(']');
+    res
+}
+fn dump_string(s: &str) {
+    println!("Though dump_string(s: &str) is : {}", s);
 }
 
 fn dump(arr: &[i32]) {
